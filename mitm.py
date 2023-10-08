@@ -8,7 +8,7 @@ portout = 55842
 
 def send_msg(sock, msg):
     # Prefix each message with a 4-byte length (network byte order)
-    msg = struct.pack('>I', len(msg)) + msg
+    msg = struct.pack('>I', len(msg)-40) + msg
     sock.sendall(msg)
 
 def recv_msg(sock):
@@ -18,7 +18,7 @@ def recv_msg(sock):
         return None
     msglen = struct.unpack('>I', raw_msglen)[0]
     # Read the message data
-    return recvall(sock, msglen)
+    return recvall(sock, msglen + 40)
 
 def recvall(sock, n):
     # Helper function to recv n bytes or return None if EOF is hit
@@ -32,15 +32,17 @@ def recvall(sock, n):
 
 
 if __name__ == "__main__":
+    
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socin:
         socin.bind((localhost, portin))
         socin.listen()#waits for incoming message
-        conn, addr = socin.accept()#accepts incoming connection
-        data = recv_msg(conn)
-        socin.close()
+        while True:
+            conn, addr = socin.accept()#accepts incoming connection
+            data = recv_msg(conn)
 
-    #EDIT DATA HERE
+            #EDIT DATA HERE
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socout:
-        socout.connect((localhost, portout))
-        send_msg(socout, data)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socout:
+                socout.connect((localhost, portout))
+                send_msg(socout, data)
+                socout.close()
