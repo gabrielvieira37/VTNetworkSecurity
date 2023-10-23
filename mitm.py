@@ -8,7 +8,7 @@ portout = 55842
 
 def send_msg(sock, msg):
     # Prefix each message with a 4-byte length (network byte order)
-    msg = struct.pack('>I', len(msg)-40) + msg
+    msg = struct.pack('>I', len(msg)-264) + msg
     sock.sendall(msg)
 
 def recv_msg(sock):
@@ -18,7 +18,7 @@ def recv_msg(sock):
         return None
     msglen = struct.unpack('>I', raw_msglen)[0]
     # Read the message data
-    return recvall(sock, msglen + 40)
+    return recvall(sock, msglen + 264)
 
 def recvall(sock, n):
     # Helper function to recv n bytes or return None if EOF is hit

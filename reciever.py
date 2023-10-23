@@ -2,7 +2,8 @@
 import socket
 import struct
 import time
-import hashlib
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 
 localhost = "127.0.0.1"
 port = 55842
@@ -15,9 +16,9 @@ def recv_msg(sock):
     msglen = struct.unpack('>I', raw_msglen)[0]
     raw_msgtime = recvall(sock, 8)
     msgtime = struct.unpack('>Q', raw_msgtime)[0]
-    checksum = recvall(sock, 32)
+    signature = recvall(sock, 256)
     # Read the message data
-    return recvall(sock, msglen), msgtime, checksum
+    return recvall(sock, msglen), msgtime, signature
 
 def recvall(sock, n):
     # Helper function to recv n bytes or return None if EOF is hit
@@ -37,11 +38,29 @@ if __name__ == "__main__":
         s.listen()#waits for incoming message
         while True:
             conn, addr = s.accept()#accepts incoming connection
-            data, msgtime, checksum = recv_msg(conn)
+            data, msgtime, signature= recv_msg(conn)
             time_in_transit = (round(time.time() * 1000) - msgtime)
             print("milliseconds in transit: " + str(time_in_transit))
-            if bytes(hashlib.md5(data).hexdigest(), 'utf-8') == checksum:
-                print("Checksum Matched")
-            else:
-                print("Checksums Did Not Match")
+
+            pubkey_file = open('pubkey')#get public key from file
+            pubkey_data = pubkey_file.read()
+            pubkey_file.close()
+            pubkey = serialization.load_pem_public_key(pubkey_data.encode('utf-8'))
+
+            data = bytes(data)
+            signature = bytes(signature)
+            try:#get signature verification with public key and data
+                pubkey.verify(
+                    signature,
+                    data,
+                    padding.PSS(
+                        mgf=padding.MGF1(hashes.SHA256()),
+                        salt_length=padding.PSS.MAX_LENGTH
+                    ),
+                    hashes.SHA256()
+                )
+            except Exception as e:
+                print("Invalid Signature or Hash")
+                exit()
+            print("Valid Signature and Hash")
             #print(data)#RECIEVED DATA HERE
