@@ -6,6 +6,7 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 
 def main():
+    print("hello world")
     df = pd.read_json("credit_card.json", orient="records")# Change it to receive message from socket
     X = df.drop(columns=['default payment next month',"ID", "Accuracy"])
     y = df['default payment next month']
@@ -17,19 +18,23 @@ def main():
     y_pred = clf.predict(X_test)
     print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
     fig = plt.figure(figsize=(25,20))
-    _ = tree.plot_tree(clf,
+    tree.plot_tree(clf,
                     feature_names=list(X.columns),
                     class_names=["denied", "approved"],
                     filled=True)
+    plt.savefig('foo.png')
 
     importance = model.feature_importances_
+    new_importance = [x for x in importance if x!=0 ]
+    fig = plt.figure(figsize=(25,20))
     # summarize feature importance
     for i,v in enumerate(importance):
-    if v!=0:
-        print(f'Feature: {X.columns[i]}, Score: {v:.4f}')
+        if v!=0:
+            print(f'Feature: {X.columns[i]}, Score: {v:.4f}')
     # plot feature importance
-    plt.bar([x for x in range(len(importance))], importance)
-    plt.show()
+    plt.bar([x for x in range(len(new_importance))], new_importance)
+    plt.savefig('foo2.png')
+    # plt.show()
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()

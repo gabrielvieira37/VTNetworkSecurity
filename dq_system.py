@@ -27,5 +27,5 @@ def main():
     df['Accuracy'].iloc[bad_marriage_quality_index] = 0
     df.to_json("credit_card.json", orient='records')
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
