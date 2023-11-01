@@ -4,6 +4,8 @@ import struct
 import time
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
+import json
+import decision_maker
 
 localhost = "127.0.0.1"
 port = 55842
@@ -63,4 +65,9 @@ if __name__ == "__main__":
                 print("Invalid Signature or Hash")
                 exit()
             print("Valid Signature and Hash")
-            #print(data)#RECIEVED DATA HERE
+            result_json = json.loads(data.decode('utf-8'))
+            pruned_json = []
+            for item in result_json:
+                if 'Accuracy' in item.keys() and int(item['Accuracy']) == 1:
+                    pruned_json.append(item)
+            decision_maker.decision_maker(json.dumps(pruned_json))

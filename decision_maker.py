@@ -5,9 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
-def main():
-    print("hello world")
-    df = pd.read_json("credit_card.json", orient="records")# Change it to receive message from socket
+def decision_maker(recieved_json):
+    df = pd.read_json(recieved_json, orient="records")# Change it to receive message from socket
     X = df.drop(columns=['default payment next month',"ID", "Accuracy"])
     y = df['default payment next month']
 
@@ -37,4 +36,4 @@ def main():
     # plt.show()
 
 if __name__ == "__main__":
-    main()
+    decision_maker()
