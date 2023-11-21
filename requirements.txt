@@ -16,6 +16,7 @@ cffi==1.16.0
 charset-normalizer==3.2.0
 comm==0.1.4
 contourpy==1.1.1
+cryptography==41.0.5
 cycler==0.12.0
 debugpy==1.8.0
 decorator==5.1.1
@@ -118,3 +119,4 @@ webencodings==0.5.1
 websocket-client==1.6.3
 widgetsnbextension==4.0.9
 wrapt==1.15.0
+xlrd==2.0.1

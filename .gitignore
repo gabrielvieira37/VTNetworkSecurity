@@ -1,1 +1,4 @@
 *.png
+*pycache*
+.DS_Store
+pubkey
