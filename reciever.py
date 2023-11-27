@@ -2,6 +2,8 @@
 import socket
 import struct
 import time
+import os
+import pandas as pd
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 import json
@@ -9,7 +11,7 @@ import decision_maker
 
 localhost = "127.0.0.1"
 port = 55842
-
+possible_hashes = ['sha1','sha512-224','sha512-256','sha224','sha256', 'sha384', 'sha512', 'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512', 'shake128', 'shake256', 'md5', 'blake2b', 'blake2s']
 hash_functions = [hashes.SHA1(), hashes.SHA512_224(),hashes.SHA512_256(), hashes.SHA224(), hashes.SHA256(), hashes.SHA384(), hashes.SHA512(), hashes.SHA3_224(), hashes.SHA3_256(), hashes.SHA3_384(), hashes.SHA3_512(), hashes.SHAKE128(128), hashes.SHAKE256(256), hashes.MD5(), hashes.BLAKE2b(64), hashes.BLAKE2s(32)]
 
 def recv_msg(sock):
@@ -51,6 +53,16 @@ if __name__ == "__main__":
             data, msgtime, signature, hash_type, control= recv_msg(conn)
             time_in_transit = (round(time.time() * 1000) - msgtime)
             print("milliseconds in transit: " + str(time_in_transit))
+
+            time_file = f'received_times_{possible_hashes[hash_type].upper()}.json'
+            if os.path.isfile(time_file):
+                time_series = pd.read_json(time_file, typ='series')
+                new_time_series = pd.Series([time_in_transit])
+                final_time_series = pd.concat([time_series, new_time_series], ignore_index=True)
+                final_time_series.to_json(time_file)
+            else:    
+                time_series = pd.Series([time_in_transit])
+                time_series.to_json(time_file)
 
             pubkey_file = open('pubkey')#get public key from file
             pubkey_data = pubkey_file.read()
