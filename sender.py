@@ -50,7 +50,7 @@ if __name__ == "__main__":
             data = data.encode('utf-8')
 
             if args.control:
-                send_msg(s, b"", data, args)
+                send_msg(s, "", data, args)
                 s.close
                 continue
             
@@ -65,3 +65,4 @@ if __name__ == "__main__":
 
             send_msg(s, signature, data, args)
             s.close()
+    time.sleep(1)
